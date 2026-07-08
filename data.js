@@ -169,3 +169,30 @@ const DEMO_SCENARIOS = [
     },
   },
 ];
+
+// Scripted playback for Listening Mode's "Play Sample Conversation" fallback —
+// a deterministic Hinglish walkthrough that doesn't depend on mic/browser support.
+// Each line's doubt-trigger keywords are checked against DEMO_SCENARIOS above;
+// filler lines are worded to avoid accidentally matching a scenario's keywords.
+const SCRIPTED_CONVERSATION = [
+  {
+    speaker: "Customer",
+    text: "Namaste, main Creta dekhne aaya tha, but Nexon ke baare mein bhi suna hai — which one is better for a family?",
+    delay: 600,
+  },
+  {
+    speaker: "Consultant",
+    text: "Dono hi solid options hain sir, let me pull that up for you right now.",
+    delay: 2000,
+  },
+  {
+    speaker: "Customer",
+    text: "Theek hai. Aur agar main sirf 10 percent down payment de sakoon, to EMI options kya honge?",
+    delay: 2800,
+  },
+  {
+    speaker: "Customer",
+    text: "Ek last doubt — iska resale value kaisa rehta hai 5 saal baad?",
+    delay: 3600,
+  },
+];
