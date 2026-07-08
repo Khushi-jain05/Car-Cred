@@ -339,12 +339,58 @@ function resetListeningState() {
     '<div class="empty-state">No doubts detected yet.</div>';
 }
 
-function checkForDoubt(text) {
-  if (!isLikelyDoubt(text)) return;
+function fireDoubt(question) {
   liveWindow = "";
   const context = buildContext();
   appendTranscriptLine("✓ Doubt detected — fetching live answer…", "detecting");
-  processQuery(text.trim(), document.getElementById("listenResultsFeed"), context);
+  processQuery(question.trim(), document.getElementById("listenResultsFeed"), context);
+}
+
+// LLM classification of an utterance — understands any phrasing/language the
+// keyword heuristic can't. Falls back to the heuristic if the API is down.
+async function classifyDoubt(text) {
+  try {
+    const res = await fetch("/api/detect", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.warn("Detect API failed, using keyword fallback:", err.message);
+    return { isDoubt: isLikelyDoubt(text), question: text };
+  }
+}
+
+let detectBusy = false;
+let detectPending = false;
+
+async function checkForDoubt(text) {
+  const trimmed = text.trim();
+  if (trimmed.split(/\s+/).length < 3) return;
+
+  // Fast path: an obvious keyword/car-term hit fires instantly, no API trip.
+  if (isLikelyDoubt(trimmed)) {
+    fireDoubt(trimmed);
+    return;
+  }
+
+  // Everything else goes to the LLM classifier, serialized so overlapping
+  // speech chunks don't race each other.
+  if (detectBusy) {
+    detectPending = true;
+    return;
+  }
+  detectBusy = true;
+  const result = await classifyDoubt(trimmed);
+  detectBusy = false;
+
+  if (result.isDoubt) fireDoubt(result.question || trimmed);
+  if (detectPending) {
+    detectPending = false;
+    if (liveWindow.trim()) checkForDoubt(liveWindow);
+  }
 }
 
 function stopScript() {

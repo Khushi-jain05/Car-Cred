@@ -115,7 +115,7 @@ Respond as strict JSON, no markdown, matching this shape:
     }
   }
   if (!GROQ_API_KEY) throw new Error("no synthesis API key configured");
-  return groqSynthesise(prompt);
+  return groqJson(prompt);
 }
 
 async function geminiSynthesise(prompt) {
@@ -139,12 +139,12 @@ async function geminiSynthesise(prompt) {
   return JSON.parse(text);
 }
 
-async function groqSynthesise(prompt) {
+async function groqJson(prompt, model = "llama-3.3-70b-versatile") {
   const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${GROQ_API_KEY}` },
     body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
+      model,
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
       temperature: 0.4,
@@ -156,6 +156,43 @@ async function groqSynthesise(prompt) {
   if (!text) throw new Error("Groq returned no content");
   return JSON.parse(text);
 }
+
+// LLM-based doubt detection for listening mode — understands any phrasing in
+// English/Hindi/Hinglish instead of matching keywords. Groq's 8B model first
+// because detection must feel instant (~300ms); Gemini as backup.
+function detectPrompt(text) {
+  return `You are the doubt-detector for a car dealership's AI sales assistant, listening to a live showroom conversation between a sales consultant and a customer. Utterances may be English, Hindi, or Hinglish (Hindi in Roman script).
+
+Utterance: "${text}"
+
+Does this utterance contain a question, doubt, or information request a car sales consultant should answer — anything about car models, comparisons, features, price, EMI/finance, insurance, exchange, test drives, delivery, safety, mileage, resale, warranty, and so on? Statements of intent count too ("mujhe Innova ke baare mein janna hai"). Greetings, small talk, and the consultant's own filler statements are NOT doubts.
+
+Reply as strict JSON, no markdown:
+{"isDoubt": true or false, "question": "if isDoubt: the customer's ask rewritten as one clear standalone question in the SAME language/mix they used, else an empty string"}`;
+}
+
+app.post("/api/detect", async (req, res) => {
+  const text = (req.body?.text || "").trim();
+  if (!text) return res.status(400).json({ error: "text is required" });
+
+  try {
+    let result = null;
+    if (GROQ_API_KEY) {
+      try {
+        result = await groqJson(detectPrompt(text), "llama-3.1-8b-instant");
+      } catch (err) {
+        if (!GEMINI_API_KEY) throw err;
+        console.warn(`[/api/detect] Groq failed (${err.message}) — falling back to Gemini`);
+      }
+    }
+    if (!result && GEMINI_API_KEY) result = await geminiSynthesise(detectPrompt(text));
+    if (!result) throw new Error("no detection API key configured");
+    res.json({ isDoubt: !!result.isDoubt, question: result.question || "" });
+  } catch (err) {
+    console.error("[/api/detect]", err.message);
+    res.status(502).json({ error: err.message });
+  }
+});
 
 app.post("/api/answer", async (req, res) => {
   const query = (req.body?.query || "").trim();
