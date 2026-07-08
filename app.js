@@ -322,3 +322,25 @@ function resetListeningState() {
   document.getElementById("listenResultsFeed").innerHTML =
     '<div class="empty-state">No doubts detected yet.</div>';
 }
+
+function checkForDoubt(text) {
+  if (!isLikelyDoubt(text)) return;
+  liveWindow = "";
+  const context = buildContext();
+  appendTranscriptLine("✓ Doubt detected — fetching live answer…", "detecting");
+  processQuery(text.trim(), document.getElementById("listenResultsFeed"), context);
+}
+
+function stopScript() {
+  isPlayingScript = false;
+  document.getElementById("playScriptBtn").disabled = false;
+}
+
+function stopListening() {
+  isListening = false;
+  setListenStatus("idle");
+  document.getElementById("startMicBtn").textContent = "🎙 Start Listening";
+  if (recognition) {
+    try { recognition.stop(); } catch (_) { /* already stopped */ }
+  }
+}
