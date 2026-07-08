@@ -328,3 +328,89 @@ textarea:focus { outline: none; border-color: var(--accent); }
 .confidence { font-size: 11px; color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
 .confidence-bar { width: 60px; height: 5px; background: var(--border); border-radius: 999px; overflow: hidden; }
 .confidence-fill { height: 100%; background: var(--good); }
+
+/* Listening mode */
+.listen-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.listen-controls .submit-btn { width: auto; flex: 1 1 160px; }
+
+.secondary-btn {
+  flex: 1 1 200px;
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.secondary-btn:hover { background: var(--accent-dim); }
+.secondary-btn:disabled { opacity: 0.6; cursor: default; }
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  margin-bottom: 14px;
+}
+
+.status-pill.listening { color: #d1453b; border-color: #d1453b; animation: pulse 1.4s ease-in-out infinite; }
+.status-pill.playing { color: var(--accent); border-color: var(--accent); }
+
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+
+.mic-warning {
+  font-size: 12.5px;
+  color: var(--warn);
+  background: rgba(179,120,28,0.1);
+  border: 1px solid var(--warn);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+}
+
+.hidden { display: none; }
+
+.transcript-panel {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  padding: 12px 14px;
+  min-height: 160px;
+  max-height: 320px;
+  overflow-y: auto;
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.transcript-line { padding: 3px 0; }
+.transcript-line.live { color: var(--text); }
+.transcript-line.customer { color: var(--text); font-weight: 500; }
+.transcript-line.consultant { color: var(--text-dim); }
+.transcript-line.detecting { color: var(--warn); font-style: italic; font-size: 12.5px; }
+.transcript-line.warning { color: #d1453b; }
+
+.panel-autofeed { margin-top: 20px; }
+
+.roadmap-footnote { margin-top: 16px; }
+
+footer {
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--text-dim);
+  padding: 18px 28px 30px;
+}
