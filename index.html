@@ -60,3 +60,59 @@
 
     </div>
   </section>
+
+  <!-- LISTENING MODE -->
+  <section id="tab-listening" class="tab-panel">
+    <div class="layout">
+
+      <div class="panel panel-input">
+        <h2>Listening Mode</h2>
+        <p class="hint">No typing — the assistant listens to the conversation, detects doubts as they form, and auto-surfaces the battlecard.</p>
+
+        <div class="listen-controls">
+          <button id="startMicBtn" class="submit-btn">🎙 Start Listening</button>
+          <button id="playScriptBtn" class="secondary-btn">▶ Play Sample Conversation</button>
+        </div>
+
+        <div id="listenStatus" class="status-pill idle">○ Idle</div>
+
+        <div id="micUnsupported" class="mic-warning hidden">
+          Live mic capture isn't supported in this browser. Use Chrome, or try "Play Sample Conversation" instead.
+        </div>
+
+        <div class="stack-note">
+          Live mic uses your browser's built-in speech recognizer — genuinely real STT, but English-tuned. Production uses Sarvam Saaras for true Hinglish accuracy; the sample conversation shows that handling deterministically instead.
+        </div>
+      </div>
+
+      <div class="panel panel-results">
+        <h2>Live transcript</h2>
+        <p class="hint">Streaming capture — doubts are detected automatically as they appear, nothing typed.</p>
+        <div id="transcriptPanel" class="transcript-panel">
+          <div class="empty-state">Not listening yet. Start the mic or play the sample conversation →</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="panel panel-autofeed">
+      <h2>Consultant screen — auto-surfaced</h2>
+      <p class="hint">These appear on their own the moment a doubt is detected.</p>
+      <div id="listenResultsFeed" class="results-feed">
+        <div class="empty-state">No doubts detected yet.</div>
+      </div>
+    </div>
+
+    <p class="hint small roadmap-footnote">Still roadmap-only for production: accent-tuned Hinglish STT via Sarvam, a continuous-vs-high-intent-only mode toggle, and the virtual chatbot + callback handoff.</p>
+  </section>
+
+</main>
+
+<footer>
+  Demo dataset is illustrative — replace models, prices and sources with CarCred's live inventory before the client walkthrough. See proposal §3–4 for full production scope.
+</footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
