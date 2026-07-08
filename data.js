@@ -46,4 +46,26 @@ const DEMO_SCENARIOS = [
       confidence: 0.88,
     },
   },
+  {
+    id: "on-road-price",
+    category: "Price",
+    chip: "On-road price",
+    question: {
+      en: "What's the on-road price of the Grand Vitara top variant in Pune?",
+      hi: "Grand Vitara ke top variant ka Pune mein on-road price kya hai?",
+      keywords: ["on-road", "onroad", "price", "cost", "pune", "grand vitara", "kitna"],
+    },
+    answer: {
+      headline: "Grand Vitara Alpha+ (Strong Hybrid, AT) on-road in Pune comes to roughly ₹22.4L, including RTO, insurance and cess.",
+      bullets: [
+        "Ex-showroom: ~₹19.9L",
+        "RTO + registration: ~₹1.6L",
+        "Comprehensive insurance (1st year): ~₹65k",
+        "Handling & extended warranty (optional): ~₹25k",
+        "Figures move with monthly RTO/insurance revisions — always confirm same-day before quoting a customer.",
+      ],
+      sources: ["marutisuzuki.com — price list", "cardekho.com — on-road price calculator, Pune RTO"],
+      confidence: 0.85,
+    },
+  },
 ];
