@@ -43,3 +43,20 @@ async function fetchLiveAnswer(query, context, lang) {
   if (!res.ok) throw new Error(`API ${res.status}`);
   return res.json();
 }
+
+// Word-boundary matched (not substring) so short common tokens like "h"/"ki"/"se"
+// are safe to include without false-matching inside unrelated English words.
+const HINDI_WORDS = [
+  "kya", "hai", "h", "nahi", "kaunsi", "konsi", "kaunsa", "konsa", "chahiye", "lena",
+  "kitna", "kitne", "saal", "thoda", "kam", "keh", "raha", "rahi", "milta", "agar",
+  "mein", "mei", "ki", "ka", "ke", "se", "mujhe", "tumhe", "aapko", "accha", "theek",
+  "sahi", "bata", "batao", "kaise", "kyun", "kyu", "hoga", "hogi", "wala", "wali",
+  "yaar", "bhai", "krna", "karna", "hona", "de sake",
+];
+
+function detectLanguage(text) {
+  if (/[ऀ-ॿ]/.test(text)) return "HI";
+  const words = text.toLowerCase().match(/[a-z']+/g) || [];
+  const hits = words.filter((w) => HINDI_WORDS.includes(w)).length;
+  return hits >= 1 ? "HINGLISH" : "EN";
+}
