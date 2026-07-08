@@ -155,3 +155,29 @@ function buildResultCard(query) {
 
   return card;
 }
+
+function stageEl(card, key) {
+  return card.querySelector(`.pipeline-step[data-key="${key}"]`);
+}
+
+function startStage(card, key) {
+  const stage = PIPELINE_STAGES.find((s) => s.key === key);
+  const el = stageEl(card, key);
+  el.classList.add("active");
+  el.innerHTML = `<span class="spinner"></span> ${stage.label}`;
+}
+
+function finishStage(card, key) {
+  const stage = PIPELINE_STAGES.find((s) => s.key === key);
+  const el = stageEl(card, key);
+  el.classList.remove("active");
+  el.classList.add("done");
+  el.innerHTML = `✓ ${stage.label}`;
+}
+
+async function timedStage(card, key) {
+  const stage = PIPELINE_STAGES.find((s) => s.key === key);
+  startStage(card, key);
+  await new Promise((r) => setTimeout(r, stage.ms));
+  finishStage(card, key);
+}
