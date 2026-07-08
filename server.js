@@ -156,3 +156,29 @@ async function groqSynthesise(prompt) {
   if (!text) throw new Error("Groq returned no content");
   return JSON.parse(text);
 }
+
+app.post("/api/answer", async (req, res) => {
+  const query = (req.body?.query || "").trim();
+  const context = (req.body?.context || "").trim() || null;
+  const lang = (req.body?.lang || "EN").toUpperCase();
+  if (!query) return res.status(400).json({ error: "query is required" });
+  if ((!GEMINI_API_KEY && !GROQ_API_KEY) || !TAVILY_API_KEY) {
+    return res.status(503).json({ error: "Server needs TAVILY_API_KEY plus GEMINI_API_KEY or GROQ_API_KEY" });
+  }
+
+  try {
+    // Fold recent context into the search string too, not just the synthesis
+    // prompt — otherwise a pronoun-only question ("iska resale value?") sends
+    // Tavily a query with no car name in it at all and it searches blind.
+    const searchQuery = context ? `${context} ${query}` : query;
+    const sources = await tavilySearch(searchQuery);
+    const answer = await synthesiseAnswer(query, sources, context, lang);
+    answer.sources = sources.length
+      ? sources.map((s) => `${new URL(s.url).hostname.replace("www.", "")} — ${s.title}`)
+      : ["no live sources matched this query"];
+    res.json(answer);
+  } catch (err) {
+    console.error("[/api/answer]", err.message);
+    res.status(502).json({ error: err.message });
+  }
+});
