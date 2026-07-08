@@ -25,4 +25,25 @@ const DEMO_SCENARIOS = [
       confidence: 0.91,
     },
   },
+  {
+    id: "adas-level",
+    category: "Feature explainer",
+    chip: "ADAS L1 vs L2",
+    question: {
+      en: "What's the actual difference between ADAS Level 1 and Level 2?",
+      hi: "ADAS Level 1 aur Level 2 mein kya real difference hai?",
+      keywords: ["adas", "level 1", "level 2", "l1", "l2", "advanced driver", "assist"],
+    },
+    answer: {
+      headline: "Level 1 assists with one task at a time; Level 2 combines steering + speed control so the car can actively hold lane and distance together.",
+      bullets: [
+        "Level 1 (e.g. adaptive cruise control OR lane-keep alone): the system handles a single axis of control — either braking/accelerating, or steering — never both at once.",
+        "Level 2 (e.g. lane-centering + adaptive cruise together): the car simultaneously steers and manages speed, so it can track a curving highway lane while holding a safe following distance.",
+        "Driver is still fully responsible at both levels — hands-on-wheel monitoring is usually enforced by the system itself.",
+        "Practical sales point: Level 2 is the bigger jump in daily highway comfort, not just a spec-sheet bump — worth the price step for customers who highway-commute often.",
+      ],
+      sources: ["sae.org — levels of driving automation", "manufacturer ADAS brochure (allow-listed)", "carwale.com — ADAS explainer"],
+      confidence: 0.88,
+    },
+  },
 ];
