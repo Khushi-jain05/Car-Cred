@@ -128,4 +128,44 @@ const DEMO_SCENARIOS = [
       confidence: 0.78,
     },
   },
+  {
+    id: "safety-rating",
+    category: "Safety",
+    chip: "NCAP rating",
+    question: {
+      en: "What's the Global NCAP safety rating for the Seltos?",
+      hi: "Seltos ki Global NCAP safety rating kya hai?",
+      keywords: ["ncap", "safety rating", "seltos", "crash test", "star rating"],
+    },
+    answer: {
+      headline: "Kia Seltos scores 3 stars for adult occupant protection under the latest Global NCAP protocol — solid, but a notch below segment leaders at 5 stars.",
+      bullets: [
+        "6 airbags are standard from the mid-variant upward — worth confirming which exact variant the customer is comparing.",
+        "If safety is the deciding factor, be upfront: some competitors in this segment score higher, but Seltos leads on cabin tech and ADAS feature depth.",
+        "Selling on total safety story (ADAS + ESC + airbags + rating) tends to land better than the rating number alone.",
+      ],
+      sources: ["globalncap.org — crash test results", "kia.com — safety spec sheet"],
+      confidence: 0.86,
+    },
+  },
+  {
+    id: "warranty-coverage",
+    category: "Warranty",
+    chip: "Warranty & service",
+    question: {
+      en: "What warranty and after-sales coverage comes standard?",
+      hi: "Standard warranty aur after-sales coverage kya milta hai?",
+      keywords: ["warranty", "after-sales", "service", "coverage", "extended", "amc"],
+    },
+    answer: {
+      headline: "Standard coverage is typically 3 years / 1,00,000 km, extendable up to 7 years — worth quoting the extension cost upfront to pre-empt the objection.",
+      bullets: [
+        "Extended warranty (years 4–7) usually costs ₹12k–₹22k depending on variant and add-on cover (engine + electricals vs comprehensive).",
+        "Annual Maintenance Contracts (AMC) can be bundled into the on-road price to smooth out the customer's total cost of ownership conversation.",
+        "Battery/EV powertrain components (where applicable) often carry a separate, longer warranty — flag this distinctly for hybrid/EV variants.",
+      ],
+      sources: ["manufacturer warranty terms (allow-listed)", "dealership AMC rate card"],
+      confidence: 0.83,
+    },
+  },
 ];
