@@ -397,3 +397,48 @@ function initMic() {
     }
   };
 }
+
+async function playScript() {
+  if (isListening) stopListening();
+  resetListeningState();
+  isPlayingScript = true;
+  setListenStatus("playing");
+  document.getElementById("playScriptBtn").disabled = true;
+
+  for (const line of SCRIPTED_CONVERSATION) {
+    await new Promise((r) => setTimeout(r, line.delay));
+    if (!isPlayingScript) return;
+    appendTranscriptLine(`${line.speaker}: ${line.text}`, line.speaker === "Customer" ? "customer" : "consultant");
+    logConversationLine(`${line.speaker}: ${line.text}`);
+    checkForDoubt(line.text);
+  }
+
+  isPlayingScript = false;
+  setListenStatus("idle");
+  document.getElementById("playScriptBtn").disabled = false;
+}
+
+function initTabs() {
+  document.querySelectorAll(".tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+      document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(`tab-${btn.dataset.tab}`).classList.add("active");
+    });
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderChips();
+  initTabs();
+  initMic();
+  document.getElementById("submitBtn").addEventListener("click", onSubmit);
+  document.getElementById("queryInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) onSubmit();
+  });
+  document.getElementById("startMicBtn").addEventListener("click", () => {
+    isListening ? stopListening() : startListening();
+  });
+  document.getElementById("playScriptBtn").addEventListener("click", playScript);
+});
