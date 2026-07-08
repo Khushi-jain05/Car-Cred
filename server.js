@@ -138,3 +138,21 @@ async function geminiSynthesise(prompt) {
   if (!text) throw new Error("Gemini returned no content");
   return JSON.parse(text);
 }
+
+async function groqSynthesise(prompt) {
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${GROQ_API_KEY}` },
+    body: JSON.stringify({
+      model: "llama-3.3-70b-versatile",
+      messages: [{ role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+      temperature: 0.4,
+    }),
+  });
+  if (!res.ok) throw new Error(`Groq error ${res.status}`);
+  const data = await res.json();
+  const text = data.choices?.[0]?.message?.content;
+  if (!text) throw new Error("Groq returned no content");
+  return JSON.parse(text);
+}
