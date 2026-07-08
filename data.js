@@ -88,4 +88,44 @@ const DEMO_SCENARIOS = [
       confidence: 0.82,
     },
   },
+  {
+    id: "financing-emi",
+    category: "Financing",
+    chip: "EMI options",
+    question: {
+      en: "What EMI options are available if the customer can only put down 10%?",
+      hi: "Agar customer sirf 10% down payment de sake to EMI options kya honge?",
+      keywords: ["emi", "down payment", "finance", "loan", "10%", "instalment"],
+    },
+    answer: {
+      headline: "At 10% down, most PSU and NBFC partners will still finance up to 90% on-road for salaried buyers with a clean CIBIL score — EMI tenures typically run 5–7 years.",
+      bullets: [
+        "Example: on a ₹15L on-road car, 10% down (₹1.5L) leaves ₹13.5L financed — roughly ₹22,500/month at 9.5% for 7 years.",
+        "Shorter tenure (5 yrs) raises the EMI to ~₹28,200/month but saves ~₹1.4L in total interest — worth mentioning for cost-conscious buyers.",
+        "Zero-dep insurance add-on is worth bundling into the loan when down payment is low, since equity in the car is thinner early on.",
+      ],
+      sources: ["bank/NBFC published rate cards (illustrative)", "dealership finance desk reference sheet"],
+      confidence: 0.8,
+    },
+  },
+  {
+    id: "mileage-objection",
+    category: "Objection handling",
+    chip: "Mileage objection",
+    question: {
+      en: "Customer says the mileage is too low compared to the competitor — what do I say?",
+      hi: "Customer keh raha hai mileage kam hai competitor se, kya jawab dena chahiye?",
+      keywords: ["mileage", "low", "kam", "objection", "fuel efficiency", "competitor"],
+    },
+    answer: {
+      headline: "Reframe from claimed mileage to real-world cost-per-km, and bring in the segment-specific strengths that offset the fuel bill.",
+      bullets: [
+        "Certified mileage figures are tested under standard cycles — real-world mileage gaps between competing SUVs in this segment are usually within 1–1.5 km/l.",
+        "At ~12,000 km/year, a 1.5 km/l gap costs roughly ₹3,500–4,500/year at current fuel prices — a small number against the car's other advantages.",
+        "Pivot to what the customer actually cares about behind the mileage question — usually running cost or resale — and answer that directly with the resale/financing data on hand.",
+      ],
+      sources: ["ARAI test cycle documentation", "internal objection-handling playbook (to be supplied by CarCred)"],
+      confidence: 0.78,
+    },
+  },
 ];
