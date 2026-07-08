@@ -287,7 +287,22 @@ const QUESTION_HINTS = [
   // Intent statements that aren't grammatical questions but are clearly doubts
   // ("I want to know about Innova", "kis tarike se Innova ka hoga").
   "want to know", "tell me", "know about", "baare mein", "batao", "kis tarah",
-  "kis tarike", "hoga", "hogi", "milegi",
+  "kis tarike", "hoga", "hogi", "milegi", "janna", "jaanna", "jana hai",
+  "difference", "explain", "kitni", "kitne", "behtar", "badhiya",
+];
+
+// In a showroom conversation, a sentence that names a car, brand or segment is
+// a doubt in itself even without a question word ("aur BMW or Audi mein
+// difference"). False positives just fetch an extra card; false negatives make
+// the demo look dead — so bias hard toward recall.
+const CAR_TERMS = [
+  "car", "gaadi", "gadi", "suv", "sedan", "hatchback", "variant", "model",
+  "innova", "creta", "nexon", "seltos", "thar", "scorpio", "fortuner", "venue",
+  "brezza", "punch", "harrier", "safari", "hyryder", "swift", "baleno", "verna",
+  "city", "ertiga", "xuv", "vitara", "curvv", "sonet", "carens", "amaze",
+  "maruti", "hyundai", "tata", "mahindra", "kia", "toyota", "honda", "skoda",
+  "volkswagen", "renault", "nissan", "bmw", "audi", "mercedes", "petrol",
+  "diesel", "hybrid", "automatic", "ev",
 ];
 
 function isLikelyDoubt(text) {
@@ -295,7 +310,8 @@ function isLikelyDoubt(text) {
   if (trimmed.split(/\s+/).length < 4) return false;
   const lower = trimmed.toLowerCase();
   if (lower.includes("?")) return true;
-  return QUESTION_HINTS.some((w) => lower.includes(w));
+  if (QUESTION_HINTS.some((w) => lower.includes(w))) return true;
+  return CAR_TERMS.some((w) => lower.includes(w));
 }
 
 function setListenStatus(mode) {
