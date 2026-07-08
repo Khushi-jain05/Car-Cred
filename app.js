@@ -276,3 +276,24 @@ function buildContext() {
   // pronouns ("iska", "that one") in the question being asked right now.
   return conversationLog.slice(0, -1).join(" | ");
 }
+
+const QUESTION_HINTS = [
+  "what", "which", "how", "why", "kaunsi", "kaunsa", "konsa", "kya", "kaise", "kitna",
+  "better", "compare", "price", "on-road", "resale", "mileage", "warranty",
+  "emi", "down payment", "safety", "ncap", "adas", "finance", "loan",
+  // Hinglish doubt markers — without these, listening mode misses questions
+  // phrased fully in Hinglish ("Creta lena chahiye ya nahi?").
+  "chahiye", "lena", "milega", "milta", "farak", "sasta", "mehenga", "kaisa", "kaisi",
+  // Intent statements that aren't grammatical questions but are clearly doubts
+  // ("I want to know about Innova", "kis tarike se Innova ka hoga").
+  "want to know", "tell me", "know about", "baare mein", "batao", "kis tarah",
+  "kis tarike", "hoga", "hogi", "milegi",
+];
+
+function isLikelyDoubt(text) {
+  const trimmed = text.trim();
+  if (trimmed.split(/\s+/).length < 4) return false;
+  const lower = trimmed.toLowerCase();
+  if (lower.includes("?")) return true;
+  return QUESTION_HINTS.some((w) => lower.includes(w));
+}
