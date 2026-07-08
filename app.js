@@ -253,3 +253,26 @@ function onSubmit() {
     btn.disabled = false;
   });
 }
+
+// Listening mode — real mic capture via the browser's built-in speech
+// recognizer (no API key), plus a deterministic scripted fallback. Both feed
+// the same processQuery() pipeline used by manual mode, just auto-triggered
+// instead of typed.
+
+let recognition = null;
+let isListening = false;
+let isPlayingScript = false;
+let liveWindow = "";
+let conversationLog = [];
+const MAX_CONTEXT_LINES = 6;
+
+function logConversationLine(text) {
+  conversationLog.push(text);
+  if (conversationLog.length > MAX_CONTEXT_LINES) conversationLog.shift();
+}
+
+function buildContext() {
+  // Everything logged before the current line — used only to resolve
+  // pronouns ("iska", "that one") in the question being asked right now.
+  return conversationLog.slice(0, -1).join(" | ");
+}
