@@ -46,3 +46,19 @@ async function tavilyRequest(body) {
   const data = await res.json();
   return data.results || [];
 }
+
+async function tavilySearch(searchQuery) {
+  const base = { api_key: TAVILY_API_KEY, query: searchQuery, max_results: 6, include_domains: ALLOWED_DOMAINS };
+
+  let results = await tavilyRequest({ ...base, search_depth: "basic" });
+  if (results.length) return results;
+
+  // Sparse/empty basic search (can happen on noisy natural-language queries) —
+  // retry deeper, then retry once more without the domain restriction, before
+  // giving up. Better to widen the net than hand the consultant a dead end.
+  results = await tavilyRequest({ ...base, search_depth: "advanced" });
+  if (results.length) return results;
+
+  results = await tavilyRequest({ api_key: TAVILY_API_KEY, query: searchQuery, max_results: 6, search_depth: "advanced" });
+  return results;
+}
