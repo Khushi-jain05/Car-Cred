@@ -181,3 +181,25 @@ async function timedStage(card, key) {
   await new Promise((r) => setTimeout(r, stage.ms));
   finishStage(card, key);
 }
+
+function revealAnswer(card, answer, isOffline) {
+  const body = card.querySelector(".card-body");
+  const sourcesHtml = answer.sources.map((s) => `<span class="source-chip">${s}</span>`).join("");
+  const bulletsHtml = answer.bullets.map((b) => `<li>${b}</li>`).join("");
+  const pct = Math.round((answer.confidence ?? 0.75) * 100);
+
+  body.innerHTML = `
+    <div class="card-category">${answer.category}${isOffline ? ' <span class="offline-tag">offline fallback</span>' : ""}</div>
+    <p class="card-headline">${answer.headline}</p>
+    <ul class="card-bullets">${bulletsHtml}</ul>
+    <div class="card-footer">
+      <div class="sources">${sourcesHtml}</div>
+      <div class="confidence">
+        Confidence
+        <div class="confidence-bar"><div class="confidence-fill" style="width:${pct}%"></div></div>
+        ${pct}%
+      </div>
+    </div>
+  `;
+  body.classList.add("revealed");
+}
