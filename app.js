@@ -297,3 +297,28 @@ function isLikelyDoubt(text) {
   if (lower.includes("?")) return true;
   return QUESTION_HINTS.some((w) => lower.includes(w));
 }
+
+function setListenStatus(mode) {
+  const el = document.getElementById("listenStatus");
+  el.className = "status-pill " + mode;
+  el.textContent = mode === "listening" ? "● Listening…" : mode === "playing" ? "▶ Playing sample…" : "○ Idle";
+}
+
+function appendTranscriptLine(text, cls) {
+  const panel = document.getElementById("transcriptPanel");
+  clearEmptyState(panel);
+  const line = document.createElement("div");
+  line.className = "transcript-line " + cls;
+  line.textContent = text;
+  panel.appendChild(line);
+  panel.scrollTop = panel.scrollHeight;
+}
+
+function resetListeningState() {
+  liveWindow = "";
+  conversationLog = [];
+  document.getElementById("transcriptPanel").innerHTML =
+    '<div class="empty-state">Not listening yet. Start the mic or play the sample conversation →</div>';
+  document.getElementById("listenResultsFeed").innerHTML =
+    '<div class="empty-state">No doubts detected yet.</div>';
+}
