@@ -105,3 +105,106 @@ body {
 
 .badge-live { background: rgba(21,143,92,0.15); color: var(--good); }
 
+main { padding: 24px 28px 60px; max-width: 1200px; margin: 0 auto; }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.panel h2 { margin: 0 0 6px; font-size: 16px; }
+.hint { margin: 0 0 14px; font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+.hint.small { font-size: 11.5px; margin-top: 18px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+
+.chip {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.chip:hover { border-color: var(--accent); }
+.chip.selected { background: var(--accent); color: white; border-color: var(--accent); }
+
+.batch-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  background: var(--bg);
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+textarea:focus { outline: none; border-color: var(--accent); }
+
+.submit-btn {
+  width: 100%;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.submit-btn:hover { filter: brightness(1.08); }
+.submit-btn:disabled { opacity: 0.6; cursor: default; }
+
+.stack-note {
+  margin-top: 16px;
+  font-size: 11px;
+  color: var(--text-dim);
+  border-top: 1px dashed var(--border);
+  padding-top: 12px;
+  line-height: 1.5;
+}
+
+.results-feed { display: flex; flex-direction: column; gap: 14px; }
+
+.empty-state {
+  color: var(--text-dim);
+  font-size: 13.5px;
+  padding: 30px 10px;
+  text-align: center;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+}
