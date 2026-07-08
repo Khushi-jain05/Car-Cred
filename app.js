@@ -234,3 +234,22 @@ async function processQuery(query, feedEl, context) {
 
   revealAnswer(card, answer, isOffline);
 }
+
+function onSubmit() {
+  const textarea = document.getElementById("queryInput");
+  const batchOn = document.getElementById("batchMode").checked;
+  const raw = textarea.value.trim();
+  if (!raw) return;
+
+  const feed = document.getElementById("resultsFeed");
+  const queries = batchOn
+    ? raw.split("\n").map((l) => l.trim()).filter(Boolean).slice(0, 3)
+    : [raw.replace(/\s+/g, " ")];
+
+  const btn = document.getElementById("submitBtn");
+  btn.disabled = true;
+
+  Promise.all(queries.map((q) => processQuery(q, feed))).finally(() => {
+    btn.disabled = false;
+  });
+}
