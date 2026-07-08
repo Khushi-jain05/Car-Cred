@@ -129,3 +129,29 @@ function onChipClick(scenario, chipEl) {
     textarea.value = line;
   }
 }
+
+function clearEmptyState(feedEl) {
+  const empty = feedEl.querySelector(".empty-state");
+  if (empty) empty.remove();
+}
+
+function buildResultCard(query) {
+  const lang = detectLanguage(query);
+  const card = document.createElement("div");
+  card.className = "result-card";
+
+  const stepsHtml = PIPELINE_STAGES.map(
+    (s) => `<span class="pipeline-step" data-key="${s.key}">${s.label}</span>`
+  ).join("");
+
+  card.innerHTML = `
+    <div class="result-question">
+      <span>“${query}”</span>
+      <span class="lang-badge">${lang}</span>
+    </div>
+    <div class="pipeline">${stepsHtml}</div>
+    <div class="card-body"></div>
+  `;
+
+  return card;
+}
