@@ -35,3 +35,14 @@ app.use(express.static(__dirname, {
   lastModified: false,
   setHeaders: (res) => res.setHeader("Cache-Control", "no-store"),
 }));
+
+async function tavilyRequest(body) {
+  const res = await fetch("https://api.tavily.com/search", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`Tavily error ${res.status}`);
+  const data = await res.json();
+  return data.results || [];
+}
