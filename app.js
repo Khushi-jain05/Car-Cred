@@ -1,0 +1,45 @@
+// Manual-mode demo logic. Real retrieval + synthesis happen server-side in
+// server.js (Tavily search -> Gemini). The mock dataset in data.js is kept
+// only as a silent fallback if that call fails (bad wifi, rate limit, no
+// keys set), so a live client demo can't hard-break mid-pitch.
+
+const PIPELINE_STAGES = [
+  { key: "capture", label: "Capturing question", ms: 250 },
+  { key: "understand", label: "Detecting intent", ms: 350 },
+  { key: "retrieve", label: "Retrieving live sources", ms: 1200 },
+  { key: "synthesize", label: "Synthesising answer", ms: 550 },
+  { key: "surface", label: "Surfacing on screen", ms: 150 },
+];
+
+const DEFAULT_ANSWER = {
+  category: "General",
+  headline: "No live sources matched this question, and no offline fallback covers it either — try rephrasing, or ask about a specific model/spec.",
+  bullets: [
+    "Live retrieval and the offline fallback both came up empty for this one.",
+    "Try one of the quick scenario chips, or a more specific question (model name, spec, price).",
+  ],
+  sources: ["no source available"],
+  confidence: 0.3,
+};
+
+// Batch mode and listening mode can fire several requests within the same
+// second (e.g. 3 scripted doubts in a row). Gemini's free tier has a low
+// per-minute burst limit, so staggering call *starts* (not full serialization)
+// meaningfully cuts down on 429s without making concurrent doubts feel serial.
+let nextCallSlot = 0;
+const MIN_CALL_GAP_MS = 900;
+
+async function fetchLiveAnswer(query, context, lang) {
+  const now = Date.now();
+  const slot = Math.max(now, nextCallSlot);
+  nextCallSlot = slot + MIN_CALL_GAP_MS;
+  if (slot > now) await new Promise((r) => setTimeout(r, slot - now));
+
+  const res = await fetch("/api/answer", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query, context: context || undefined, lang }),
+  });
+  if (!res.ok) throw new Error(`API ${res.status}`);
+  return res.json();
+}
