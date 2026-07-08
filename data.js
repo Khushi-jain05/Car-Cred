@@ -68,4 +68,24 @@ const DEMO_SCENARIOS = [
       confidence: 0.85,
     },
   },
+  {
+    id: "resale-value",
+    category: "Resale",
+    chip: "Resale value",
+    question: {
+      en: "How well does the XUV700 hold resale value after 5 years?",
+      hi: "5 saal baad XUV700 ki resale value kaisi rehti hai?",
+      keywords: ["resale", "5 year", "value", "xuv700", "second hand", "used", "depreciation"],
+    },
+    answer: {
+      headline: "XUV700 typically retains ~55–60% of ex-showroom price at 5 years — one of the stronger resale curves in the mid-size SUV segment.",
+      bullets: [
+        "Strong demand in the used-SUV market keeps depreciation slower than hatchbacks/sedans in the same price band.",
+        "AX7 variants with ADAS hold value slightly better than base trims — a good upsell angle for budget-conscious buyers worried about resale.",
+        "Well-documented service history at authorized centers adds a further 3–5% at resale.",
+      ],
+      sources: ["mahindra.com — model page", "cars24.com — used SUV valuation trends", "cardekho.com — depreciation report"],
+      confidence: 0.82,
+    },
+  },
 ];
