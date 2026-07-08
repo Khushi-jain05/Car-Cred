@@ -98,3 +98,34 @@ function resolveScenario(query, minScore = 1) {
 
   return best;
 }
+
+function renderChips() {
+  const chipRow = document.getElementById("chipRow");
+  DEMO_SCENARIOS.forEach((scenario) => {
+    const chip = document.createElement("button");
+    chip.className = "chip";
+    chip.type = "button";
+    chip.textContent = scenario.chip;
+    chip.dataset.id = scenario.id;
+    chip.addEventListener("click", () => onChipClick(scenario, chip));
+    chipRow.appendChild(chip);
+  });
+}
+
+function onChipClick(scenario, chipEl) {
+  const textarea = document.getElementById("queryInput");
+  const batchOn = document.getElementById("batchMode").checked;
+  const line = scenario.question.hi && Math.random() > 0.5 ? scenario.question.hi : scenario.question.en;
+
+  if (batchOn) {
+    const existing = textarea.value.split("\n").map((l) => l.trim()).filter(Boolean);
+    if (existing.length >= 3) return;
+    existing.push(line);
+    textarea.value = existing.join("\n");
+    chipEl.classList.add("selected");
+  } else {
+    document.querySelectorAll(".chip").forEach((c) => c.classList.remove("selected"));
+    chipEl.classList.add("selected");
+    textarea.value = line;
+  }
+}
