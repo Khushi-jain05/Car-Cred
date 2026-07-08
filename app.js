@@ -344,3 +344,56 @@ function stopListening() {
     try { recognition.stop(); } catch (_) { /* already stopped */ }
   }
 }
+
+function startListening() {
+  if (!recognition) return;
+  if (isPlayingScript) stopScript();
+  resetListeningState();
+  isListening = true;
+  setListenStatus("listening");
+  document.getElementById("startMicBtn").textContent = "⏹ Stop Listening";
+  try {
+    recognition.start();
+  } catch (_) {
+    appendTranscriptLine("Couldn't access the mic — try \"Play Sample Conversation\" instead.", "warning");
+    stopListening();
+  }
+}
+
+function initMic() {
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRec) {
+    document.getElementById("micUnsupported").classList.remove("hidden");
+    document.getElementById("startMicBtn").disabled = true;
+    return;
+  }
+
+  recognition = new SpeechRec();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = "en-IN";
+
+  recognition.onresult = (e) => {
+    let finalChunk = "";
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) finalChunk += e.results[i][0].transcript + " ";
+    }
+    finalChunk = finalChunk.trim();
+    if (!finalChunk) return;
+    appendTranscriptLine(finalChunk, "live");
+    logConversationLine(finalChunk);
+    liveWindow += " " + finalChunk;
+    checkForDoubt(liveWindow);
+  };
+
+  recognition.onerror = (e) => {
+    appendTranscriptLine(`Mic error: ${e.error} — try "Play Sample Conversation" instead.`, "warning");
+    stopListening();
+  };
+
+  recognition.onend = () => {
+    if (isListening) {
+      try { recognition.start(); } catch (_) { /* mic ended for good */ }
+    }
+  };
+}
