@@ -60,3 +60,41 @@ function detectLanguage(text) {
   const hits = words.filter((w) => HINDI_WORDS.includes(w)).length;
   return hits >= 1 ? "HINGLISH" : "EN";
 }
+
+// Car models the offline fallback dataset actually has data for. If the user's
+// query names a model outside this list, the fallback must not answer as if
+// it were about one of these — that's how "Thar resale value" was silently
+// answering with XUV700 numbers.
+const KNOWN_MODELS = ["creta", "nexon", "grand vitara", "xuv700", "seltos"];
+
+function resolveScenario(query, minScore = 1) {
+  const lower = query.toLowerCase();
+  let best = null;
+  let bestScore = 0;
+  for (const scenario of DEMO_SCENARIOS) {
+    const score = scenario.question.keywords.reduce(
+      (acc, kw) => acc + (lower.includes(kw.toLowerCase()) ? 1 : 0),
+      0
+    );
+    if (score > bestScore) {
+      bestScore = score;
+      best = scenario;
+    }
+  }
+  if (bestScore < minScore || !best) return null;
+
+  const mentionedModels = KNOWN_MODELS.filter((m) => lower.includes(m));
+  const queryMentionsAModel = /\b(creta|nexon|vitara|xuv\w*|seltos|thar|scorpio|fortuner|innova|venue|brezza|punch|harrier|safari|hyryder|swift|baleno|verna|city|ertiga)\b/i.test(lower);
+  if (queryMentionsAModel && mentionedModels.length === 0) {
+    // Query is about a specific model the offline dataset has no data for at all.
+    return null;
+  }
+  if (mentionedModels.length) {
+    const scenarioCoversModel = mentionedModels.some((m) =>
+      best.question.keywords.some((k) => k.includes(m) || m.includes(k))
+    );
+    if (!scenarioCoversModel) return null;
+  }
+
+  return best;
+}
