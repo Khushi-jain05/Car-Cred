@@ -182,3 +182,10 @@ app.post("/api/answer", async (req, res) => {
     res.status(502).json({ error: err.message });
   }
 });
+
+app.listen(PORT, () => {
+  console.log(`CarCred demo server running on http://localhost:${PORT}`);
+  if ((!GEMINI_API_KEY && !GROQ_API_KEY) || !TAVILY_API_KEY) {
+    console.warn("Missing TAVILY_API_KEY or a synthesis key (GEMINI_API_KEY/GROQ_API_KEY) — /api/answer will return 503 until set.");
+  }
+});
