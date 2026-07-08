@@ -117,3 +117,24 @@ Respond as strict JSON, no markdown, matching this shape:
   if (!GROQ_API_KEY) throw new Error("no synthesis API key configured");
   return groqSynthesise(prompt);
 }
+
+async function geminiSynthesise(prompt) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+  const body = JSON.stringify({
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: { responseMimeType: "application/json" },
+  });
+  const options = { method: "POST", headers: { "Content-Type": "application/json" }, body };
+
+  let res = await fetch(url, options);
+  if (res.status === 503) {
+    // Gemini free tier occasionally reports transient overload — one quick retry clears most of these.
+    await new Promise((r) => setTimeout(r, 700));
+    res = await fetch(url, options);
+  }
+  if (!res.ok) throw new Error(`Gemini error ${res.status}`);
+  const data = await res.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error("Gemini returned no content");
+  return JSON.parse(text);
+}
