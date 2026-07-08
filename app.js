@@ -203,3 +203,34 @@ function revealAnswer(card, answer, isOffline) {
   `;
   body.classList.add("revealed");
 }
+
+async function processQuery(query, feedEl, context) {
+  clearEmptyState(feedEl);
+  const card = buildResultCard(query);
+  feedEl.prepend(card);
+
+  // Mirror the customer's language in the answer: a Hinglish question should
+  // get a Hinglish battlecard the consultant can read out as-is.
+  const lang = detectLanguage(query);
+
+  await timedStage(card, "capture");
+  await timedStage(card, "understand");
+
+  startStage(card, "retrieve");
+  let answer;
+  let isOffline = false;
+  try {
+    answer = await fetchLiveAnswer(query, context, lang);
+  } catch (err) {
+    console.warn("Live API failed, using offline fallback:", err.message);
+    isOffline = true;
+    const scenario = resolveScenario(query);
+    answer = scenario ? { ...scenario.answer, category: scenario.category } : { ...DEFAULT_ANSWER };
+  }
+  finishStage(card, "retrieve");
+
+  await timedStage(card, "synthesize");
+  await timedStage(card, "surface");
+
+  revealAnswer(card, answer, isOffline);
+}
