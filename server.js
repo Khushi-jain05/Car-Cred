@@ -62,3 +62,15 @@ async function tavilySearch(searchQuery) {
   results = await tavilyRequest({ api_key: TAVILY_API_KEY, query: searchQuery, max_results: 6, search_depth: "advanced" });
   return results;
 }
+
+// The consultant should be able to read the battlecard out loud verbatim, so
+// the answer must be in the language the customer actually spoke. The client
+// detects this per-query (Devanagari => HI, romanised Hindi words => HINGLISH).
+const LANGUAGE_INSTRUCTIONS = {
+  HINGLISH:
+    'The buyer asked this in Hinglish (Hindi-English mix, Roman script). Write the "headline" and every bullet in the same natural, conversational Hinglish an Indian car sales consultant would speak — Hindi sentence flow in Roman script, keeping technical/car terms (on-road price, EMI, ADAS, airbags, mileage, resale value, warranty) in English. Use Roman/Latin script ONLY: even if the sources are written in Devanagari, transliterate — never output Devanagari characters. Do NOT answer in pure English or pure Hindi.',
+  HI:
+    'The buyer asked this in Hindi. Write the "headline" and every bullet in Hindi (Devanagari script), keeping technical/car terms (EMI, ADAS, on-road price) in English where that is how people naturally say them.',
+  EN:
+    'Write the "headline" and every bullet in English.',
+};
