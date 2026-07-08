@@ -74,3 +74,46 @@ const LANGUAGE_INSTRUCTIONS = {
   EN:
     'Write the "headline" and every bullet in English.',
 };
+
+async function synthesiseAnswer(query, sources, context, lang) {
+  const sourceBlock = sources
+    .map((s, i) => `[${i + 1}] ${s.title} (${s.url})\n${s.content}`)
+    .join("\n\n");
+
+  const contextBlock = context
+    ? `Recent conversation so far (use this ONLY to resolve pronouns/references like "iska", "that one", "is car ka" — the question itself is what to answer):\n${context}\n\n`
+    : "";
+
+  const languageInstruction = LANGUAGE_INSTRUCTIONS[lang] || LANGUAGE_INSTRUCTIONS.EN;
+
+  const prompt = `You are an AI sales assistant for a car dealership consultant. A buyer has asked or implied this question:
+"${query}"
+
+${contextBlock}Here is what live web search returned (use ONLY this information, never invent a spec, price, or fact):
+${sourceBlock || "(no search results found)"}
+
+Write a short, persuasive, sales-ready answer a consultant can say out loud, grounded strictly in the sources above.
+${languageInstruction} The "category" value must always stay in English.
+
+Respond as strict JSON, no markdown, matching this shape:
+{
+  "category": "one of: Comparison, Feature explainer, Price, Resale, Financing, Objection handling, Safety, Warranty, General",
+  "headline": "one persuasive sentence summarising the answer",
+  "bullets": ["3-4 short supporting bullet points, each a standalone sales-ready fact"],
+  "confidence": 0.0-1.0 based on how well the sources actually covered the question
+}`;
+
+  // Gemini first, Groq as fallback — the free Gemini tier runs out of quota
+  // (429) mid-demo, and a demo that answers via Groq beats one that falls
+  // back to the offline mock dataset.
+  if (GEMINI_API_KEY) {
+    try {
+      return await geminiSynthesise(prompt);
+    } catch (err) {
+      if (!GROQ_API_KEY) throw err;
+      console.warn(`[synthesise] Gemini failed (${err.message}) — falling back to Groq`);
+    }
+  }
+  if (!GROQ_API_KEY) throw new Error("no synthesis API key configured");
+  return groqSynthesise(prompt);
+}
