@@ -1,7 +1,6 @@
-// Manual-mode demo logic. Real retrieval + synthesis happen server-side in
-// server.js (Tavily search -> Gemini). The mock dataset in data.js is kept
-// only as a silent fallback if that call fails (bad wifi, rate limit, no
-// keys set), so a live client demo can't hard-break mid-pitch.
+// Demo logic. All retrieval + synthesis happen live server-side in server.js
+// (Tavily search -> Gemini/Groq). There is no local answer dataset — if the
+// live call fails, the card says so honestly instead of showing canned data.
 
 const PIPELINE_STAGES = [
   { key: "capture", label: "Capturing question", ms: 250 },
@@ -13,10 +12,10 @@ const PIPELINE_STAGES = [
 
 const DEFAULT_ANSWER = {
   category: "General",
-  headline: "No live sources matched this question, and no offline fallback covers it either — try rephrasing, or ask about a specific model/spec.",
+  headline: "Live retrieval isn't reachable right now — check the internet connection and API keys, then ask again.",
   bullets: [
-    "Live retrieval and the offline fallback both came up empty for this one.",
-    "Try one of the quick scenario chips, or a more specific question (model name, spec, price).",
+    "Every answer is fetched live from the web; nothing is answered from a local dataset.",
+    "Confirm the server is running (npm start) and the connection is up, then retry the question.",
   ],
   sources: ["no source available"],
   confidence: 0.3,
@@ -61,61 +60,35 @@ function detectLanguage(text) {
   return hits >= 1 ? "HINGLISH" : "EN";
 }
 
-// Car models the offline fallback dataset actually has data for. If the user's
-// query names a model outside this list, the fallback must not answer as if
-// it were about one of these — that's how "Thar resale value" was silently
-// answering with XUV700 numbers.
-const KNOWN_MODELS = ["creta", "nexon", "grand vitara", "xuv700", "seltos"];
-
-function resolveScenario(query, minScore = 1) {
-  const lower = query.toLowerCase();
-  let best = null;
-  let bestScore = 0;
-  for (const scenario of DEMO_SCENARIOS) {
-    const score = scenario.question.keywords.reduce(
-      (acc, kw) => acc + (lower.includes(kw.toLowerCase()) ? 1 : 0),
-      0
-    );
-    if (score > bestScore) {
-      bestScore = score;
-      best = scenario;
-    }
-  }
-  if (bestScore < minScore || !best) return null;
-
-  const mentionedModels = KNOWN_MODELS.filter((m) => lower.includes(m));
-  const queryMentionsAModel = /\b(creta|nexon|vitara|xuv\w*|seltos|thar|scorpio|fortuner|innova|venue|brezza|punch|harrier|safari|hyryder|swift|baleno|verna|city|ertiga)\b/i.test(lower);
-  if (queryMentionsAModel && mentionedModels.length === 0) {
-    // Query is about a specific model the offline dataset has no data for at all.
-    return null;
-  }
-  if (mentionedModels.length) {
-    const scenarioCoversModel = mentionedModels.some((m) =>
-      best.question.keywords.some((k) => k.includes(m) || m.includes(k))
-    );
-    if (!scenarioCoversModel) return null;
-  }
-
-  return best;
-}
+// Quick-start example questions for the chips row — just prompts that fill
+// the query box, answered live like any typed question.
+const CHIP_QUESTIONS = [
+  { chip: "Creta vs Nexon", en: "Hyundai Creta vs Tata Nexon — which one should I buy?", hi: "Hyundai Creta ya Tata Nexon, kaunsi gaadi lena chahiye?" },
+  { chip: "ADAS L1 vs L2", en: "What's the actual difference between ADAS Level 1 and Level 2?", hi: "ADAS Level 1 aur Level 2 mein kya real difference hai?" },
+  { chip: "On-road price", en: "What's the on-road price of the Grand Vitara top variant in Pune?", hi: "Grand Vitara ke top variant ka Pune mein on-road price kya hai?" },
+  { chip: "Resale value", en: "How well does the XUV700 hold resale value after 5 years?", hi: "5 saal baad XUV700 ki resale value kaisi rehti hai?" },
+  { chip: "EMI options", en: "What EMI options are available if the customer can only put down 10%?", hi: "Agar customer sirf 10% down payment de sake to EMI options kya honge?" },
+  { chip: "Mileage objection", en: "Customer says the mileage is too low compared to the competitor — what do I say?", hi: "Customer keh raha hai mileage kam hai competitor se, kya jawab dena chahiye?" },
+  { chip: "NCAP rating", en: "What's the Global NCAP safety rating for the Seltos?", hi: "Seltos ki Global NCAP safety rating kya hai?" },
+  { chip: "Warranty & service", en: "What warranty and after-sales coverage comes standard?", hi: "Standard warranty aur after-sales coverage kya milta hai?" },
+];
 
 function renderChips() {
   const chipRow = document.getElementById("chipRow");
-  DEMO_SCENARIOS.forEach((scenario) => {
+  CHIP_QUESTIONS.forEach((q) => {
     const chip = document.createElement("button");
     chip.className = "chip";
     chip.type = "button";
-    chip.textContent = scenario.chip;
-    chip.dataset.id = scenario.id;
-    chip.addEventListener("click", () => onChipClick(scenario, chip));
+    chip.textContent = q.chip;
+    chip.addEventListener("click", () => onChipClick(q, chip));
     chipRow.appendChild(chip);
   });
 }
 
-function onChipClick(scenario, chipEl) {
+function onChipClick(q, chipEl) {
   const textarea = document.getElementById("queryInput");
   const batchOn = document.getElementById("batchMode").checked;
-  const line = scenario.question.hi && Math.random() > 0.5 ? scenario.question.hi : scenario.question.en;
+  const line = q.hi && Math.random() > 0.5 ? q.hi : q.en;
 
   if (batchOn) {
     const existing = textarea.value.split("\n").map((l) => l.trim()).filter(Boolean);
@@ -222,10 +195,9 @@ async function processQuery(query, feedEl, context) {
   try {
     answer = await fetchLiveAnswer(query, context, lang);
   } catch (err) {
-    console.warn("Live API failed, using offline fallback:", err.message);
+    console.warn("Live API failed:", err.message);
     isOffline = true;
-    const scenario = resolveScenario(query);
-    answer = scenario ? { ...scenario.answer, category: scenario.category } : { ...DEFAULT_ANSWER };
+    answer = { ...DEFAULT_ANSWER };
   }
   finishStage(card, "retrieve");
 
@@ -459,6 +431,32 @@ function initMic() {
     }
   };
 }
+
+// Scripted playback for "Play Sample Conversation" — a deterministic Hinglish
+// walkthrough that doesn't depend on mic/browser support. Only the customer
+// lines are doubts; the consultant line is filler the detector should ignore.
+const SCRIPTED_CONVERSATION = [
+  {
+    speaker: "Customer",
+    text: "Namaste, main Creta dekhne aaya tha, but Nexon ke baare mein bhi suna hai — which one is better for a family?",
+    delay: 600,
+  },
+  {
+    speaker: "Consultant",
+    text: "Dono hi solid options hain sir, let me pull that up for you right now.",
+    delay: 2000,
+  },
+  {
+    speaker: "Customer",
+    text: "Theek hai. Aur agar main sirf 10 percent down payment de sakoon, to EMI options kya honge?",
+    delay: 2800,
+  },
+  {
+    speaker: "Customer",
+    text: "Ek last doubt — iska resale value kaisa rehta hai 5 saal baad?",
+    delay: 3600,
+  },
+];
 
 async function playScript() {
   if (isListening) stopListening();

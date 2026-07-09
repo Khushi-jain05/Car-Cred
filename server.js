@@ -29,7 +29,7 @@ const ALLOWED_DOMAINS = [
 const app = express();
 app.use(express.json());
 // Serve demo assets with caching disabled — a live demo must always pick up
-// the latest app.js/data.js on refresh, never a stale cached copy.
+// the latest app.js on refresh, never a stale cached copy.
 app.use(express.static(__dirname, {
   etag: false,
   lastModified: false,

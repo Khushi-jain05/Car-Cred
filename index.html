@@ -46,7 +46,7 @@
         <button id="submitBtn" class="submit-btn">Get Answer</button>
 
         <div class="stack-note">
-          Live stack: Gemini 2.0 Flash · Tavily retrieval (curated allow-list). Falls back to a local dataset if the connection drops.
+          Live stack: Gemini 2.5 Flash (Groq fallback) · Tavily retrieval (curated allow-list). Every answer is fetched live — no local answer dataset.
         </div>
       </div>
 
@@ -109,10 +109,9 @@
 </main>
 
 <footer>
-  Demo dataset is illustrative — replace models, prices and sources with CarCred's live inventory before the client walkthrough. See proposal §3–4 for full production scope.
+  All answers are fetched live from public sources — tune the retrieval allow-list to CarCred's preferred sites before the client walkthrough. See proposal §3–4 for full production scope.
 </footer>
 
-<script src="data.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
