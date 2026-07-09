@@ -220,9 +220,16 @@ app.post("/api/answer", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`CarCred demo server running on http://localhost:${PORT}`);
-  if ((!GEMINI_API_KEY && !GROQ_API_KEY) || !TAVILY_API_KEY) {
-    console.warn("Missing TAVILY_API_KEY or a synthesis key (GEMINI_API_KEY/GROQ_API_KEY) — /api/answer will return 503 until set.");
-  }
-});
+// Locally this is a real server (npm start). On Vercel the same app runs as a
+// serverless function — api/index.js exports it and Vercel's CDN serves the
+// static files instead of express.static.
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`CarCred demo server running on http://localhost:${PORT}`);
+    if ((!GEMINI_API_KEY && !GROQ_API_KEY) || !TAVILY_API_KEY) {
+      console.warn("Missing TAVILY_API_KEY or a synthesis key (GEMINI_API_KEY/GROQ_API_KEY) — /api/answer will return 503 until set.");
+    }
+  });
+}
+
+module.exports = app;
